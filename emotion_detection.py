@@ -2,15 +2,6 @@ import requests
 import json
 
 def emotion_detector(text_to_analyze):
-    """
-    Detects emotions in the given text using Watson NLP Emotion Predict function.
-    
-    Args:
-        text_to_analyze (str): The text to analyze for emotions
-        
-    Returns:
-        dict: The text attribute from the response object
-    """
     # Define the URL for the Watson NLP Emotion Predict API
     url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
     
@@ -23,13 +14,41 @@ def emotion_detector(text_to_analyze):
     # Make the POST request to the API
     response = requests.post(url, json=input_json, headers=headers)
     
-    # Check if request was successful
+    # Convert the response text into a dictionary using json library
+    response_dict = json.loads(response.text)
+    
+    # Extract the required set of emotions with their scores
+    # Navigate through the response structure to get emotion predictions
     if response.status_code == 200:
-        response_json = response.json()
-        print("Full Response:")
-        print(json.dumps(response_json, indent=2))
-        return response_json
+        emotions = response_dict['emotionPredictions'][0]['emotion']
+        
+        # Extract individual emotion scores
+        anger_score = emotions['anger']
+        disgust_score = emotions['disgust']
+        fear_score = emotions['fear']
+        joy_score = emotions['joy']
+        sadness_score = emotions['sadness']
+        
+        # Find the dominant emotion (emotion with the highest score)
+        emotion_scores = {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score
+        }
+        
+        # Get the dominant emotion name
+        dominant_emotion = max(emotion_scores, key=emotion_scores.get)
+        
+        # Return the formatted output
+        return {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score,
+            'dominant_emotion': dominant_emotion
+        }
     else:
-        print(f"Error: Status code {response.status_code}")
-        print(f"Response: {response.text}")
         return None
