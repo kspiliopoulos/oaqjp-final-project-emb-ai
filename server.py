@@ -19,9 +19,9 @@ def emotion_detector_route():
     response = emotion_detector(text_to_analyze)
     
     # Check if response is valid
-    if response is None:
-        return "Invalid input! Try again."
-    
+    if response['dominant_emotion'] is None:
+        return "Invalid input! Please try again."
+        
     # Format the response string
     anger = response['anger']
     disgust = response['disgust']
